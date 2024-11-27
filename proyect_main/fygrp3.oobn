@@ -56,97 +56,97 @@ class fygrp3
     HR_Grid_Y = "40";
     HR_Grid_X = "40";
 
+    node System
+    {
+	label = "";
+	position = (148 215);
+	states = ("fallo" "no_fallo");
+	HR_Group = "0";
+	HR_Desc = "";
+	HR_State_1 = "";
+	HR_State_0 = "";
+    }
+
     node Recovery
     {
 	label = "";
-	position = (405 178);
-	states = ("State 1" "State 2");
-	HR_LinkGroup = "[Failures:0]";
-	HR_LinkMode = "[Failures:0]";
+	position = (323 132);
+	states = ("activo" "no_activo");
 	HR_Group = "0";
 	HR_Desc = "";
 	HR_State_1 = "";
 	HR_State_0 = "";
-    }
-
-    node Firewall
-    {
-	label = "";
-	position = (403 81);
-	states = ("0" "1");
-	HR_LinkGroup = "[Attacks:0]";
-	HR_LinkMode = "[Attacks:0]";
-	HR_Group = "0";
-	HR_Desc = "";
-	HR_State_1 = "";
-	HR_State_0 = "";
-    }
-
-    node Failures
-    {
-	label = "";
-	position = (256 255);
-	states = ("State 1" "State 2");
-	HR_Group = "0";
-	HR_Desc = "";
-	HR_State_1 = "";
-	HR_State_0 = "";
-    }
-
-    node Request
-    {
-	label = "";
-	position = (254 69);
-	states = ("0" "1");
-	HR_LinkGroup = "[Attacks:0]";
-	HR_LinkMode = "[Attacks:0]";
-	HR_Group = "0";
-	HR_Desc = "";
-	HR_State_1 = "";
-	HR_State_0 = "";
+	HR_LinkGroup = "[System:0]";
+	HR_LinkMode = "[C5:0][System:0]";
     }
 
     node Attacks
     {
 	label = "";
-	position = (257 164);
-	states = ("0" "1");
-	HR_LinkGroup = "[Failures:0]";
-	HR_LinkMode = "[Failures:0]";
+	position = (147 122);
+	states = ("pasa" "no_pasa");
 	HR_Group = "0";
 	HR_Desc = "";
 	HR_State_1 = "";
 	HR_State_0 = "";
+	HR_LinkGroup = "[System:0]";
+	HR_LinkMode = "[C5:0][System:0]";
+    }
+
+    node Firewall
+    {
+	label = "";
+	position = (327 38);
+	states = ("activo" "no_activo");
+	HR_Group = "0";
+	HR_Desc = "Probabilidad de que el firewall est\303\251 en funcionamiento";
+	HR_State_1 = "";
+	HR_State_0 = "";
+	HR_LinkGroup = "[Attacks:0]";
+	HR_LinkMode = "[C3:0][Attacks:0]";
+    }
+
+    node Request
+    {
+	label = "";
+	position = (146 32);
+	states = ("ataque" "no_ataque");
+	HR_Group = "0";
+	HR_Desc = "Probabilidad de que la petici\303\263n sea un ataque\n";
+	HR_State_1 = "";
+	HR_State_0 = "";
+	HR_LinkGroup = "[Attacks:0]";
+	HR_LinkMode = "[C3:0][Attacks:0]";
+    }
+
+    potential (System | Recovery Attacks)
+    {
+	data = ((( 0.25 0.75 )	%  Recovery=activo  Attacks=pasa
+		 ( 0 1 ))	%  Recovery=activo  Attacks=no_pasa
+		(( 0.5 0.5 )	%  Recovery=no_activo  Attacks=pasa
+		 ( 0 1 )));	%  Recovery=no_activo  Attacks=no_pasa
     }
 
     potential (Recovery)
     {
-	data = ( 1 1 );
+	data = ( 0.75 0.25 );
+    }
+
+    potential (Attacks | Firewall Request)
+    {
+	data = ((( 0.25 0.75 )	%  Firewall=activo  Request=ataque
+		 ( 0 1 ))	%  Firewall=activo  Request=no_ataque
+		(( 1 0 )	%  Firewall=no_activo  Request=ataque
+		 ( 0 1 )));	%  Firewall=no_activo  Request=no_ataque
     }
 
     potential (Firewall)
     {
-	data = ( 0.25 0.75 );
-    }
-
-    potential (Failures | Recovery Attacks)
-    {
-	data = ((( 1 1 )	%  Recovery=State 1  Attacks=0
-		 ( 1 1 ))	%  Recovery=State 1  Attacks=1
-		(( 1 1 )	%  Recovery=State 2  Attacks=0
-		 ( 1 1 )));	%  Recovery=State 2  Attacks=1
+	data = ( 0.95 0.05 );
     }
 
     potential (Request)
     {
 	data = ( 0.1 0.9 );
-    }
-
-    potential (Attacks | Firewall Request)
-    {
-	data = ((( 1 1 )	%  Firewall=0  Request=0
-		 ( 1 1 ))	%  Firewall=0  Request=1
-		(( 1 1 )	%  Firewall=1  Request=0
-		 ( 1 1 )));	%  Firewall=1  Request=1
     }
 } % class fygrp3
